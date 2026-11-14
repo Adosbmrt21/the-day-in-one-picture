@@ -11,9 +11,21 @@ headlines. The program simply copies the image held in this repository.
 
 import os
 import shutil
+import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT_DIR = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
+SRC = os.path.join(HERE, "entry.png")
+DST = os.path.join(OUT_DIR, "entry.png")
 
 os.makedirs(OUT_DIR, exist_ok=True)
-shutil.copyfile(os.path.join(HERE, "entry.png"), os.path.join(OUT_DIR, "entry.png"))
+shutil.copyfile(SRC, DST)
+
+# Sanity check: the written image must be byte-identical to the held image
+# and within the gate's 1 MiB limit, or the run should fail loudly.
+written = os.path.getsize(DST)
+if written != os.path.getsize(SRC):
+    sys.exit("entry.png copy mismatch")
+if written > 1024 * 1024:
+    sys.exit("entry.png exceeds 1 MiB")
+print(f"entry.png written: {written} bytes")
